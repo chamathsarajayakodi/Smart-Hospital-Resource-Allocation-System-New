@@ -2,7 +2,24 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define MAX_PATIENTS 100
+
 //Shared patient data
+int emergencyLevel[MAX_PATIENTS];
+int specialtyId[MAX_PATIENTS];
+int wardId[MAX_PATIENTS];
+
+char patientName[MAX_PATIENTS][100];
+
+int age[MAX_PATIENTS];
+int admissionChoice[MAX_PATIENTS];
+int daysAdmitted[MAX_PATIENTS];
+
+int currentQueue[4] = {0, 0, 0, 0};
+int estimatedWaitingTime = 0;
+
+int patientCount = 0;
+
 
 //Hospital data
 
@@ -70,7 +87,7 @@ const int totalBedCapacity[4] =
 };
 
 //Function declarations
-
+void registerPatient(void);
 
 //Main program
 int main(void)
