@@ -15,11 +15,15 @@ int age[MAX_PATIENTS];
 int admissionChoice[MAX_PATIENTS];
 int daysAdmitted[MAX_PATIENTS];
 
+<<<<<<< HEAD
 int currentQueue[4] = {0, 0, 0, 0};
 int estimatedWaitingTime = 0;
 
 int patientCount = 0;
 
+=======
+int patientCount = 0;
+>>>>>>> New-Patient-Registration
 
 //Hospital data
 
@@ -232,6 +236,137 @@ int main(void)
 }
 
 //New Patient Registration
+
+void registerPatient(void)
+{
+    if (patientCount >= MAX_PATIENTS)
+    {
+        printf("Patient registration is full!\n");
+        return;
+    }
+
+    printf("\n--- New Patient Registration ---\n");
+
+    printf("Patient Name: ");
+    scanf(" %99[^\n]", patientName[patientCount]);
+
+    printf("Patient Age: ");
+    scanf("%d", &age[patientCount]);
+
+    if (age[patientCount] <= 0 || age[patientCount] > 120)
+    {
+        printf("Invalid age! Registration cancelled.\n");
+        return;
+    }
+
+    // Emergency level
+
+    printf("\nEmergency Choice\n");
+
+    for (int i = 0; i < 3; i++)
+    {
+        printf("%d. %s\n", i + 1, emergencyChoice[i]);
+    }
+
+    printf("Emergency level: ");
+    scanf("%d", &emergencyLevel[patientCount]);
+
+    if (emergencyLevel[patientCount] < 1 ||
+        emergencyLevel[patientCount] > 3)
+    {
+        printf("Invalid choice! Registration cancelled.\n");
+        return;
+    }
+
+
+    // Specialty
+
+    printf("\nSpecialty Selection\n");
+
+    for (int i = 0; i < 4; i++)
+    {
+        printf("%d. %s\n", i + 1, specialty[i]);
+    }
+
+    printf("Specialty ID: ");
+    scanf("%d", &specialtyId[patientCount]);
+
+    if (specialtyId[patientCount] < 1 ||
+        specialtyId[patientCount] > 4)
+    {
+        printf("Invalid choice! Registration cancelled.\n");
+        return;
+    }
+
+
+    // Ward admission
+
+    printf("\nIs Admitted to Ward?\n");
+    printf("1 = Yes\n");
+    printf("0 = No\n");
+
+    printf("Ward admission choice: ");
+    scanf("%d", &admissionChoice[patientCount]);
+
+
+    if (admissionChoice[patientCount] == 1)
+    {
+        printf("\nWard Selection\n");
+
+        for (int i = 0; i < 4; i++)
+        {
+            printf("%d. %s\n", i + 1, ward[i]);
+        }
+
+        printf("Ward ID: ");
+        scanf("%d", &wardId[patientCount]);
+
+        if (wardId[patientCount] < 1 ||
+            wardId[patientCount] > 4)
+        {
+            printf("Invalid choice! Registration cancelled.\n");
+            return;
+        }
+
+        printf("Days Admitted: ");
+        scanf("%d", &daysAdmitted[patientCount]);
+
+        if (daysAdmitted[patientCount] <= 0)
+        {
+            printf("Invalid number of days! Registration cancelled.\n");
+            return;
+        }
+    }
+
+    else if (admissionChoice[patientCount] == 0)
+    {
+        wardId[patientCount] = 0;
+        daysAdmitted[patientCount] = 0;
+    }
+
+    else
+    {
+        printf("Invalid choice! Registration cancelled.\n");
+        return;
+    }
+
+
+    // Initial bed information
+
+    bedNumber[patientCount] = 0;
+
+    allocationDate[patientCount][0] = '\0';
+    cancellationDate[patientCount][0] = '\0';
+
+
+    printf("\nPatient registered successfully!\n");
+
+    printf("Patient ID: PAT-%04d\n",
+           1001 + patientCount);
+
+    patientCount++;
+}
+
 //Doctor Channeling
 //Hospital Wards & Bed Allocation
 //Billing
