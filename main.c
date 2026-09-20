@@ -88,6 +88,17 @@ const int totalBedCapacity[4] =
 
 //Function declarations
 void registerPatient(void);
+void billing(void);
+
+void generateBill(int i);
+
+float calculateEmergencySurcharge(float baseFee, int level);
+float calculateWardCost(int days, float dailyRate);
+float calculateGrossTotal(float baseFee, float surcharge, float wardCost);
+float calculateAgeSubsidy(float grossTotal, int patientAge);
+float calculateFinalPayable(float grossTotal, float discount);
+
+float patientFinalPayable(int i);
 
 //Main program
 int main(void)
@@ -235,4 +246,313 @@ int main(void)
 //Doctor Channeling
 //Hospital Wards & Bed Allocation
 //Billing
+/* =========================================================
+   CASE 4
+   BILLING FUNCTIONS
+   ========================================================= */
+
+float calculateEmergencySurcharge(float baseFee,
+                                  int level)
+{
+    if (level == 2)
+    {
+        return baseFee * 0.20f;
+    }
+
+    if (level == 3)
+    {
+        return baseFee * 0.50f;
+    }
+
+    return 0.0f;
+}
+
+
+float calculateWardCost(int days,
+                        float dailyRate)
+{
+    return days * dailyRate;
+}
+
+
+float calculateGrossTotal(float baseFee,
+                          float surcharge,
+                          float wardCost)
+{
+    return baseFee +
+           surcharge +
+           wardCost;
+}
+
+
+float calculateAgeSubsidy(float grossTotal,
+                          int patientAge)
+{
+    if (patientAge < 5 ||
+        patientAge > 65)
+    {
+        return grossTotal * 0.15f;
+    }
+
+    return 0.0f;
+}
+
+
+float calculateFinalPayable(float grossTotal,
+                            float discount)
+{
+    return grossTotal - discount;
+}
+
+
+/* =========================================================
+   CALCULATE ONE PATIENT'S FINAL BILL
+   ========================================================= */
+
+float patientFinalPayable(int i)
+{
+    float baseFee =
+        consultationFee[specialtyId[i] - 1];
+
+
+    float surcharge =
+        calculateEmergencySurcharge(
+            baseFee,
+            emergencyLevel[i]
+        );
+
+
+    float wardCost = 0.0f;
+
+
+    if (admissionChoice[i] == 1)
+    {
+        wardCost =
+            calculateWardCost(
+                daysAdmitted[i],
+                dailyBedRate[wardId[i] - 1]
+            );
+    }
+
+
+    float gross =
+        calculateGrossTotal(
+            baseFee,
+            surcharge,
+            wardCost
+        );
+
+
+    float discount =
+        calculateAgeSubsidy(
+            gross,
+            age[i]
+        );
+
+
+    return calculateFinalPayable(
+        gross,
+        discount
+    );
+}
+
+
+/* =========================================================
+   GENERATE BILL
+   ========================================================= */
+
+void generateBill(int i)
+{
+    float baseFee =
+        consultationFee[specialtyId[i] - 1];
+
+
+    float surcharge =
+        calculateEmergencySurcharge(
+            baseFee,
+            emergencyLevel[i]
+        );
+
+
+    float wardCost = 0.0f;
+
+
+    if (admissionChoice[i] == 1)
+    {
+        wardCost =
+            calculateWardCost(
+                daysAdmitted[i],
+                dailyBedRate[wardId[i] - 1]
+            );
+    }
+
+
+    float gross =
+        calculateGrossTotal(
+            baseFee,
+            surcharge,
+            wardCost
+        );
+
+
+    float discount =
+        calculateAgeSubsidy(
+            gross,
+            age[i]
+        );
+
+
+    float finalPayable =
+        calculateFinalPayable(
+            gross,
+            discount
+        );
+
+
+    printf("\n");
+    printf("========================================\n");
+    printf("       SMART HOSPITAL ADMISSION & BILL\n");
+    printf("========================================\n");
+
+
+    printf("Patient ID            : PAT-%04d\n",
+           1001 + i);
+
+    printf("Patient Name          : %s\n",
+           patientName[i]);
+
+    printf("Age                   : %d Years\n",
+           age[i]);
+
+    printf("Specialty             : %s\n",
+           specialty[specialtyId[i] - 1]);
+
+
+    if (admissionChoice[i] == 1)
+    {
+        printf("Assigned Ward         : %s",
+               ward[wardId[i] - 1]);
+
+        if (bedNumber[i] > 0)
+        {
+            printf(" (Bed #%02d)",
+                   bedNumber[i]);
+        }
+
+        printf("\n");
+    }
+
+    else
+    {
+        printf("Assigned Ward         : Outpatient (OPD)\n");
+    }
+
+
+    printf("Urgency Level         : Level %d (%s)\n",
+           emergencyLevel[i],
+           emergencyChoice[
+               emergencyLevel[i] - 1
+           ]);
+
+
+    printf("\n");
+
+    printf("Base Consultation Fee : LKR %10.2f\n",
+           baseFee);
+
+    printf("Emergency Surcharge   : LKR %10.2f\n",
+           surcharge);
+
+    printf("Ward Stay Cost        : LKR %10.2f\n",
+           wardCost);
+
+    printf("Gross Total Bill      : LKR %10.2f\n",
+           gross);
+
+    printf("Age Subsidy Discount  : LKR -%9.2f\n",
+           discount);
+
+    printf("\n");
+
+    printf("Final Payable Amount  : LKR %10.2f\n",
+           finalPayable);
+
+    printf("Estimated Waiting Time: %d mins\n",
+           estimatedWaitingTime);
+
+    printf("========================================\n");
+}
+
+
+/* =========================================================
+   CASE 4 MAIN
+   ========================================================= */
+
+void billing(void)
+{
+    if (patientCount == 0)
+    {
+        printf("\nNo registered patients available.\n");
+        return;
+    }
+
+
+    int option;
+
+
+    do
+    {
+        printf("\n--- Billing ---\n");
+
+
+        for (int i = 0;
+             i < patientCount;
+             i++)
+        {
+            printf("%d. %s\n",
+                   i + 1,
+                   patientName[i]);
+        }
+
+
+        printf("0. Back\n");
+
+
+        printf("Select patient: ");
+        scanf("%d", &option);
+
+
+        if (option >= 1 &&
+            option <= patientCount)
+        {
+            generateBill(option - 1);
+
+
+            printf("\nEnter 0 to return to Billing "
+                   "menu or select another patient: ");
+
+            scanf("%d", &option);
+
+
+            if (option == 0)
+            {
+                break;
+            }
+
+
+            if (option < 1 ||
+                option > patientCount)
+            {
+                printf("Invalid patient selection.\n");
+                option = -1;
+            }
+        }
+
+        else if (option != 0)
+        {
+            printf("Invalid patient selection!\n");
+        }
+
+    } while (option != 0);
+}
 //Reports & Data Management
