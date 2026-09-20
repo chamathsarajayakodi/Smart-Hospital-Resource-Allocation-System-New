@@ -20,6 +20,13 @@ int estimatedWaitingTime = 0;
 
 int patientCount = 0;
 
+int bedNumber[MAX_PATIENTS] = {0};
+
+char allocationDate[MAX_PATIENTS][20] = {0};
+char cancellationDate[MAX_PATIENTS][20] = {0};
+
+int bedOccupancy[MAX_WARDS][MAX_BEDS] = {0};
+
 
 //Hospital data
 
@@ -88,6 +95,8 @@ const int totalBedCapacity[4] =
 
 //Function declarations
 void registerPatient(void);
+
+void reports(void);
 
 //Main program
 int main(void)
@@ -236,3 +245,259 @@ int main(void)
 //Hospital Wards & Bed Allocation
 //Billing
 //Reports & Data Management
+/* =========================================================
+   CASE 5
+   REPORTS
+   ========================================================= */
+
+void reports(void)
+{
+    int option;
+
+
+    do
+    {
+        printf("\n--- Reports and Data Management ---\n");
+
+        printf("1. Patient Summary by Emergency Level\n");
+        printf("2. Revenue & Discount Report\n");
+        printf("3. Ward Bed Occupancy Report\n");
+        printf("4. Highest-Paying Patient\n");
+        printf("5. Back\n");
+
+
+        printf("Enter your choice: ");
+        scanf("%d", &option);
+
+
+        switch (option)
+        {
+            /* ================= REPORT 1 ================= */
+
+            case 1:
+            {
+                int normal = 0;
+                int urgent = 0;
+                int critical = 0;
+
+
+                for (int i = 0;
+                     i < patientCount;
+                     i++)
+                {
+                    if (emergencyLevel[i] == 1)
+                    {
+                        normal++;
+                    }
+
+                    else if (emergencyLevel[i] == 2)
+                    {
+                        urgent++;
+                    }
+
+                    else if (emergencyLevel[i] == 3)
+                    {
+                        critical++;
+                    }
+                }
+
+
+                printf("\nPatient Summary by Emergency Level\n");
+
+                printf("Normal   : %d patients\n",
+                       normal);
+
+                printf("Urgent   : %d patients\n",
+                       urgent);
+
+                printf("Critical : %d patients\n",
+                       critical);
+
+                break;
+            }
+
+
+            /* ================= REPORT 2 ================= */
+
+            case 2:
+            {
+                float revenue = 0.0f;
+                float discountTotal = 0.0f;
+
+
+                for (int i = 0;
+                     i < patientCount;
+                     i++)
+                {
+                    float base =
+                        consultationFee[
+                            specialtyId[i] - 1
+                        ];
+
+
+                    float surcharge =
+                        calculateEmergencySurcharge(
+                            base,
+                            emergencyLevel[i]
+                        );
+
+
+                    float wardCost = 0.0f;
+
+
+                    if (admissionChoice[i] == 1)
+                    {
+                        wardCost =
+                            calculateWardCost(
+                                daysAdmitted[i],
+                                dailyBedRate[
+                                    wardId[i] - 1
+                                ]
+                            );
+                    }
+
+
+                    float gross =
+                        calculateGrossTotal(
+                            base,
+                            surcharge,
+                            wardCost
+                        );
+
+
+                    float discount =
+                        calculateAgeSubsidy(
+                            gross,
+                            age[i]
+                        );
+
+
+                    revenue +=
+                        calculateFinalPayable(
+                            gross,
+                            discount
+                        );
+
+
+                    discountTotal += discount;
+                }
+
+
+                printf("\nRevenue & Discount Report\n");
+
+                printf("Total Revenue   : LKR %.2f\n",
+                       revenue);
+
+                printf("Total Discounts : LKR %.2f\n",
+                       discountTotal);
+
+                break;
+            }
+
+
+            /* ================= REPORT 3 ================= */
+
+            case 3:
+            {
+                printf("\nWard Bed Occupancy Report\n\n");
+
+
+                for (int i = 0;
+                     i < 4;
+                     i++)
+                {
+                    int occupied = 0;
+
+
+                    for (int j = 0;
+                         j < totalBedCapacity[i];
+                         j++)
+                    {
+                        if (bedOccupancy[i][j] == 1)
+                        {
+                            occupied++;
+                        }
+                    }
+
+
+                    printf("%s\n",
+                           ward[i]);
+
+                    printf("Total Beds     : %d\n",
+                           totalBedCapacity[i]);
+
+                    printf("Occupied Beds  : %d\n",
+                           occupied);
+
+                    printf("Available Beds : %d\n\n",
+                           totalBedCapacity[i] -
+                           occupied);
+                }
+
+                break;
+            }
+
+
+            /* ================= REPORT 4 ================= */
+
+            case 4:
+            {
+                if (patientCount == 0)
+                {
+                    printf("No patients available.\n");
+                    break;
+                }
+
+
+                int highest = 0;
+
+
+                float highestPayable =
+                    patientFinalPayable(0);
+
+
+                for (int i = 1;
+                     i < patientCount;
+                     i++)
+                {
+                    float payable =
+                        patientFinalPayable(i);
+
+
+                    if (payable > highestPayable)
+                    {
+                        highestPayable =
+                            payable;
+
+                        highest = i;
+                    }
+                }
+
+
+                printf("\nHighest-Paying Patient\n");
+
+                printf("Patient Name  : %s\n",
+                       patientName[highest]);
+
+                printf("Patient ID    : PAT-%04d\n",
+                       1001 + highest);
+
+                printf("Final Payable : LKR %.2f\n",
+                       highestPayable);
+
+                break;
+            }
+
+
+            case 5:
+
+                break;
+
+
+            default:
+
+                printf("Invalid choice!\n");
+        }
+
+    } while (option != 5);
+}
