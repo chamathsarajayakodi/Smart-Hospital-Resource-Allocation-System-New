@@ -88,6 +88,7 @@ const int totalBedCapacity[4] =
 
 //Function declarations
 void registerPatient(void);
+void doctorChannelling(void);
 
 //Main program
 int main(void)
@@ -233,6 +234,138 @@ int main(void)
 
 //New Patient Registration
 //Doctor Channeling
+void doctorChannelling(void)
+{
+    int selectedSpecialty;
+    int option;
+
+    printf("\n--- Doctor Channeling ---\n");
+
+    for (int i = 0; i < 4; i++)
+    {
+        printf("%d. %s\n",
+               i + 1,
+               specialty[i]);
+    }
+
+    printf("Specialty ID: ");
+    scanf("%d", &selectedSpecialty);
+
+    if (selectedSpecialty < 1 ||
+        selectedSpecialty > 4)
+    {
+        printf("Invalid specialty choice!\n");
+        return;
+    }
+
+
+    do
+    {
+        printf("\n1. Current queue\n");
+        printf("2. Consultation time\n");
+        printf("3. Estimated waiting time\n");
+        printf("4. Daily capacity\n");
+        printf("5. Back\n");
+
+        printf("Enter your choice: ");
+        scanf("%d", &option);
+
+
+        switch (option)
+        {
+            case 1:
+            {
+                int count = 0;
+
+                printf("\nCurrent queue:\n");
+
+                /*
+                   Critical first
+                   Urgent second
+                   Normal last
+                */
+
+                for (int level = 3; level >= 1; level--)
+                {
+                    for (int i = 0;
+                         i < patientCount;
+                         i++)
+                    {
+                        if (specialtyId[i] == selectedSpecialty &&
+                            emergencyLevel[i] == level)
+                        {
+                            count++;
+
+                            printf("%d. %s - %s\n",
+                                   count,
+                                   patientName[i],
+                                   emergencyChoice[level - 1]);
+                        }
+                    }
+                }
+
+                currentQueue[selectedSpecialty - 1] = count;
+
+                printf("Total patients in queue: %d\n",
+                       count);
+
+                break;
+            }
+
+
+            case 2:
+
+                printf("Consultation time: %d minutes\n",
+                       consultationTime[selectedSpecialty - 1]);
+
+                break;
+
+
+            case 3:
+            {
+                int count = 0;
+
+                for (int i = 0;
+                     i < patientCount;
+                     i++)
+                {
+                    if (specialtyId[i] == selectedSpecialty)
+                    {
+                        count++;
+                    }
+                }
+
+                estimatedWaitingTime =
+                    count *
+                    consultationTime[selectedSpecialty - 1];
+
+                printf("Estimated waiting time: %d minutes\n",
+                       estimatedWaitingTime);
+
+                break;
+            }
+
+
+            case 4:
+
+                printf("Daily patient capacity: %d patients\n",
+                       dailyCapacity[selectedSpecialty - 1]);
+
+                break;
+
+
+            case 5:
+
+                break;
+
+
+            default:
+
+                printf("Invalid choice! Please try again.\n");
+        }
+
+    } while (option != 5);
+}
 //Hospital Wards & Bed Allocation
 //Billing
 //Reports & Data Management
