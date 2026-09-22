@@ -1084,10 +1084,9 @@ void generateBill(int i)
 
 
     printf("\n");
-    printf("========================================\n");
+    printf("==================================================\n");
     printf("       SMART HOSPITAL ADMISSION & BILL\n");
-    printf("========================================\n");
-
+    printf("==================================================\n");
 
     printf("Patient ID            : PAT-%04d\n",
            1001 + i);
@@ -1129,7 +1128,7 @@ void generateBill(int i)
            ]);
 
 
-    printf("\n");
+    printf("--------------------------------------------------\n");
 
     printf("Base Consultation Fee : LKR %10.2f\n",
            baseFee);
@@ -1140,13 +1139,14 @@ void generateBill(int i)
     printf("Ward Stay Cost        : LKR %10.2f\n",
            wardCost);
 
+    printf("--------------------------------------------------\n");
     printf("Gross Total Bill      : LKR %10.2f\n",
            gross);
 
     printf("Age Subsidy Discount  : LKR -%9.2f\n",
            discount);
 
-    printf("\n");
+    printf("--------------------------------------------------\n");
 
     printf("Final Payable Amount  : LKR %10.2f\n",
            finalPayable);
@@ -1154,7 +1154,7 @@ void generateBill(int i)
     printf("Estimated Waiting Time: %d mins\n",
            estimatedWaitingTime);
 
-    printf("========================================\n");
+    printf("==================================================\n");
 }
 
 
