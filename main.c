@@ -95,7 +95,9 @@ const int totalBedCapacity[4] =
     5
 };
 
+
 //Function declarations
+
 void registerPatient(void);
 void doctorChannelling(void);
 void wardAndBedAllocation(void);
@@ -117,7 +119,18 @@ float patientFinalPayable(int i);
 
 void reports(void);
 
+
+/* =========================================================
+   REQUIREMENT 7
+   FILE HANDLING FUNCTION DECLARATIONS
+   ========================================================= */
+
+void loadBedStatus(void);
+void saveBedStatus(void);
+
+
 //Main program
+
 int main(void)
 {
     int id;
@@ -127,6 +140,14 @@ int main(void)
     char userName[50];
     char date[20];
     char time[20];
+
+
+    /* =====================================================
+       REQUIREMENT 7
+       LOAD BED STATUS WHEN PROGRAM STARTS
+       ===================================================== */
+
+    loadBedStatus();
 
 
     do
@@ -211,6 +232,13 @@ int main(void)
 
                 case 6:
 
+                    /*
+                       Save the current bed status before
+                       leaving the main menu.
+                    */
+
+                    saveBedStatus();
+
                     printf("\nExiting main menu...\n");
 
                     break;
@@ -252,12 +280,135 @@ int main(void)
     } while (loginAgain == 1);
 
 
+    /*
+       Final save before the entire program closes.
+       This provides an additional safety save.
+    */
+
+    saveBedStatus();
+
+
     printf("\nThank you for using the "
            "Smart Hospital System!\n");
 
 
     return 0;
 }
+
+
+/* =========================================================
+   REQUIREMENT 7
+   LOAD BED STATUS FROM FILE
+   ========================================================= */
+
+void loadBedStatus(void)
+{
+    FILE *file;
+
+    int i;
+    int j;
+
+
+    file = fopen("beds_status.txt", "r");
+
+
+    /*
+       If the file does not exist, all beds remain available.
+    */
+
+    if (file == NULL)
+    {
+        for (i = 0; i < MAX_WARDS; i++)
+        {
+            for (j = 0; j < MAX_BEDS; j++)
+            {
+                bedOccupancy[i][j] = 0;
+            }
+        }
+
+        return;
+    }
+
+
+    /*
+       Read the saved bed occupancy values.
+    */
+
+    for (i = 0; i < MAX_WARDS; i++)
+    {
+        for (j = 0; j < MAX_BEDS; j++)
+        {
+            if (fscanf(file,
+                       "%d",
+                       &bedOccupancy[i][j]) != 1)
+            {
+                bedOccupancy[i][j] = 0;
+            }
+
+
+            /*
+               Make sure only valid occupancy values
+               are stored.
+            */
+
+            if (bedOccupancy[i][j] != 0 &&
+                bedOccupancy[i][j] != 1)
+            {
+                bedOccupancy[i][j] = 0;
+            }
+        }
+    }
+
+
+    fclose(file);
+}
+
+
+/* =========================================================
+   REQUIREMENT 7
+   SAVE BED STATUS TO FILE
+   ========================================================= */
+
+void saveBedStatus(void)
+{
+    FILE *file;
+
+    int i;
+    int j;
+
+
+    file = fopen("beds_status.txt", "w");
+
+
+    if (file == NULL)
+    {
+        printf("\nWarning: Could not save bed status.\n");
+        return;
+    }
+
+
+    /*
+       Save the complete bed matrix.
+       0 = Available
+       1 = Occupied
+    */
+
+    for (i = 0; i < MAX_WARDS; i++)
+    {
+        for (j = 0; j < MAX_BEDS; j++)
+        {
+            fprintf(file,
+                    "%d ",
+                    bedOccupancy[i][j]);
+        }
+
+        fprintf(file, "\n");
+    }
+
+
+    fclose(file);
+}
+
 
 //New Patient Registration
 
@@ -391,7 +542,9 @@ void registerPatient(void)
     patientCount++;
 }
 
+
 //Doctor Channeling
+
 void doctorChannelling(void)
 {
     int selectedSpecialty;
@@ -524,7 +677,10 @@ void doctorChannelling(void)
 
     } while (option != 5);
 }
+
+
 //Hospital Wards & Bed Allocation
+
 /* =========================================================
    CASE 3
    BED MATRIX
@@ -732,6 +888,15 @@ void bedAllocation(void)
             bedOccupancy[selectedWard - 1]
                          [selectedBed - 1] = 1;
 
+
+            /*
+               REQUIREMENT 7:
+               Save the new occupied status immediately.
+            */
+
+            saveBedStatus();
+
+
             bedNumber[patientIndex] = selectedBed;
 
 
@@ -865,6 +1030,15 @@ void bedAllocation(void)
             bedOccupancy[selectedWard - 1]
                          [bedNumber[patientIndex] - 1] = 0;
 
+
+            /*
+               REQUIREMENT 7:
+               Save the new available status immediately.
+            */
+
+            saveBedStatus();
+
+
             bedNumber[patientIndex] = 0;
 
 
@@ -919,7 +1093,9 @@ void wardAndBedAllocation(void)
     } while (option != 3);
 }
 
+
 //Billing
+
 /* =========================================================
    CASE 4
    BILLING FUNCTIONS
@@ -1140,6 +1316,7 @@ void generateBill(int i)
            wardCost);
 
     printf("--------------------------------------------------\n");
+
     printf("Gross Total Bill      : LKR %10.2f\n",
            gross);
 
@@ -1155,6 +1332,143 @@ void generateBill(int i)
            estimatedWaitingTime);
 
     printf("==================================================\n");
+
+
+    /* =====================================================
+       REQUIREMENT 7
+       APPEND BILLING RECORD TO patient_records.txt
+       ===================================================== */
+
+    FILE *file;
+
+    file = fopen("patient_records.txt", "a");
+
+
+    if (file == NULL)
+    {
+        printf("\nWarning: Could not save patient billing record.\n");
+        return;
+    }
+
+
+    fprintf(file,
+            "==================================================\n");
+
+    fprintf(file,
+            "       SMART HOSPITAL PATIENT BILLING RECORD\n");
+
+    fprintf(file,
+            "==================================================\n");
+
+
+    fprintf(file,
+            "Patient ID            : PAT-%04d\n",
+            1001 + i);
+
+
+    fprintf(file,
+            "Patient Name          : %s\n",
+            patientName[i]);
+
+
+    fprintf(file,
+            "Age                   : %d Years\n",
+            age[i]);
+
+
+    fprintf(file,
+            "Specialty             : %s\n",
+            specialty[specialtyId[i] - 1]);
+
+
+    if (admissionChoice[i] == 1)
+    {
+        fprintf(file,
+                "Assigned Ward         : %s",
+                ward[wardId[i] - 1]);
+
+
+        if (bedNumber[i] > 0)
+        {
+            fprintf(file,
+                    " (Bed #%02d)",
+                    bedNumber[i]);
+        }
+
+
+        fprintf(file, "\n");
+    }
+
+    else
+    {
+        fprintf(file,
+                "Assigned Ward         : Outpatient (OPD)\n");
+    }
+
+
+    fprintf(file,
+            "Urgency Level         : Level %d (%s)\n",
+            emergencyLevel[i],
+            emergencyChoice[
+                emergencyLevel[i] - 1
+            ]);
+
+
+    fprintf(file,
+            "--------------------------------------------------\n");
+
+
+    fprintf(file,
+            "Base Consultation Fee : LKR %10.2f\n",
+            baseFee);
+
+
+    fprintf(file,
+            "Emergency Surcharge   : LKR %10.2f\n",
+            surcharge);
+
+
+    fprintf(file,
+            "Ward Stay Cost        : LKR %10.2f\n",
+            wardCost);
+
+
+    fprintf(file,
+            "--------------------------------------------------\n");
+
+
+    fprintf(file,
+            "Gross Total Bill      : LKR %10.2f\n",
+            gross);
+
+
+    fprintf(file,
+            "Age Subsidy Discount  : LKR -%9.2f\n",
+            discount);
+
+
+    fprintf(file,
+            "--------------------------------------------------\n");
+
+
+    fprintf(file,
+            "Final Payable Amount  : LKR %10.2f\n",
+            finalPayable);
+
+
+    fprintf(file,
+            "Estimated Waiting Time: %d mins\n",
+            estimatedWaitingTime);
+
+
+    fprintf(file,
+            "==================================================\n\n");
+
+
+    fclose(file);
+
+
+    printf("\nBilling record saved to patient_records.txt\n");
 }
 
 
@@ -1229,7 +1543,10 @@ void billing(void)
 
     } while (option != 0);
 }
+
+
 //Reports & Data Management
+
 /* =========================================================
    CASE 5
    REPORTS

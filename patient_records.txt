@@ -1,0 +1,21 @@
+==================================================
+       SMART HOSPITAL PATIENT BILLING RECORD
+==================================================
+Patient ID            : PAT-1001
+Patient Name          : c1
+Age                   : 10 Years
+Specialty             : General Practice (OPD)
+Assigned Ward         : General Ward
+Urgency Level         : Level 1 (Normal)
+--------------------------------------------------
+Base Consultation Fee : LKR    1500.00
+Emergency Surcharge   : LKR       0.00
+Ward Stay Cost        : LKR   30000.00
+--------------------------------------------------
+Gross Total Bill      : LKR   31500.00
+Age Subsidy Discount  : LKR -     0.00
+--------------------------------------------------
+Final Payable Amount  : LKR   31500.00
+Estimated Waiting Time: 0 mins
+==================================================
+

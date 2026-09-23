@@ -1,0 +1,6 @@
+# depslib dependency file v1.0
+1790075722 source:c:\users\admin\onedrive\desktop\smart-hospital-resource-allocation-system-new\smart-hospital-resource-allocation-system-new\main.c
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+
